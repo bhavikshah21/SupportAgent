@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .layer {
+            background: linear-gradient(135deg, #f6f8fb 0%, #ffffff 100%);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 2px solid #e2e8f0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .layer:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .layer-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .layer-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        /* Layer specific colors */
+        .ui-layer {
+            border-left: 6px solid #3b82f6;
+        }
+        .ui-layer .layer-title {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        .ui-layer .layer-icon {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        
+        .orchestration-layer {
+            border-left: 6px solid #8b5cf6;
+        }
+        .orchestration-layer .layer-title {
+            color: #8b5cf6;
+            border-bottom-color: #8b5cf6;
+        }
+        .orchestration-layer .layer-icon {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+        
+        .agent-layer {
+            border-left: 6px solid #ec4899;
+        }
+        .agent-layer .layer-title {
+            color: #ec4899;
+            border-bottom-color: #ec4899;
+        }
+        .agent-layer .layer-icon {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+        
+        .tool-layer {
+            border-left: 6px solid #f59e0b;
+        }
+        .tool-layer .layer-title {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+        }
+        .tool-layer .layer-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .data-layer {
+            border-left: 6px solid #10b981;
+        }
+        .data-layer .layer-title {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
+        .data-layer .layer-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .component {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .component:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            border-color: currentColor;
+        }
+        
+        .component-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .component-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .component-desc {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        .component-features {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .component-features li {
+            margin-left: 20px;
+            margin-top: 4px;
+        }
+        
+        /* Component specific colors */
+        .ui-layer .component { border-color: #bfdbfe; }
+        .ui-layer .component-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .ui-layer .component-title { color: #1e40af; }
+        
+        .orchestration-layer .component { border-color: #ddd6fe; }
+        .orchestration-layer .component-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .orchestration-layer .component-title { color: #6d28d9; }
+        
+        .agent-layer .component { border-color: #fbcfe8; }
+        .agent-layer .component-icon { background: linear-gradient(135deg, #ec4899, #db2777); }
+        .agent-layer .component-title { color: #be185d; }
+        
+        .tool-layer .component { border-color: #fed7aa; }
+        .tool-layer .component-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .tool-layer .component-title { color: #b45309; }
+        
+        .data-layer .component { border-color: #a7f3d0; }
+        .data-layer .component-icon { background: linear-gradient(135deg, #10b981, #059669); }
+        .data-layer .component-title { color: #047857; }
+        
+        .arrow {
+            text-align: center;
+            color: #cbd5e0;
+            font-size: 24px;
+            margin: -15px 0;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .components {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Agentic AI Third-Line Support System</h1>
+        <p class="subtitle">Risk Management & P&L System Architecture</p>
+        
+        <div class="architecture">
+            <!-- UI Layer -->
+            <div class="layer ui-layer">
+                <div class="layer-title">
+                    <div class="layer-icon">🖥️</div>
+                    User Interface Layer
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">💬</div>
+                            Chat Interface
+                        </div>
+                        <div class="component-desc">
+                            Conversational interface for querying issues and receiving diagnostics
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">📊</div>
+                            Analytics Dashboard
+                        </div>
+                        <div class="component-desc">
+                            Real-time metrics, trends, and issue visualization
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">🔔</div>
+                            Alert Console
+                        </div>
+                        <div class="component-desc">
+                            Proactive notifications and issue tracking
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- Orchestration Layer -->
+            <div class="layer orchestration-layer">
+                <div class="layer-title">
+                    <div class="layer-icon">⚙️</div>
+                    Orchestration Layer
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">🎯</div>
+                            Agent Orchestrator
+                        </div>
+                        <div class="component-desc">
+                            Coordinates multi-agent workflows using LangGraph/CrewAI
+                        </div>
+                        <ul class="component-features">
+                            <li>Task planning & decomposition</li>
+                            <li>Agent routing & coordination</li>
+                            <li>Context management</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">💾</div>
+                            State Manager
+                        </div>
+                        <div class="component-desc">
+                            Maintains conversation state and intermediate results
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">📋</div>
+                            Task Planner
+                        </div>
+                        <div class="component-desc">
+                            Breaks complex queries into executable subtasks
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- Agent Layer -->
+            <div class="layer agent-layer">
+                <div class="layer-title">
+                    <div class="layer-icon">🤖</div>
+                    Intelligent Agent Layer
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">🔍</div>
+                            Detection Agent
+                        </div>
+                        <div class="component-desc">
+                            Identifies production issues and anomalies
+                        </div>
+                        <ul class="component-features">
+                            <li>Log pattern analysis</li>
+                            <li>Metric deviation detection</li>
+                            <li>Threshold monitoring</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">🔬</div>
+                            Diagnosis Agent
+                        </div>
+                        <div class="component-desc">
+                            Performs root cause analysis across systems
+                        </div>
+                        <ul class="component-features">
+                            <li>Multi-dimensional comparison</li>
+                            <li>Correlation analysis</li>
+                            <li>Hypothesis generation</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">💡</div>
+                            Resolution Advisor
+                        </div>
+                        <div class="component-desc">
+                            Suggests remediation steps and best practices
+                        </div>
+                        <ul class="component-features">
+                            <li>Historical incident matching</li>
+                            <li>Remediation planning</li>
+                            <li>Escalation recommendations</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- Tool Layer -->
+            <div class="layer tool-layer">
+                <div class="layer-title">
+                    <div class="layer-icon">🛠️</div>
+                    Tool & API Layer
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">📝</div>
+                            Log Analyzer
+                        </div>
+                        <div class="component-desc">
+                            Parse, compare, and analyze system logs
+                        </div>
+                        <ul class="component-features">
+                            <li>Error pattern extraction</li>
+                            <li>Day-over-day comparison</li>
+                            <li>Frequency analysis</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">🗄️</div>
+                            Database Comparator
+                        </div>
+                        <div class="component-desc">
+                            Compare database states and validate data
+                        </div>
+                        <ul class="component-features">
+                            <li>Row-level comparison</li>
+                            <li>Aggregate metrics</li>
+                            <li>Schema validation</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">🔄</div>
+                            Input Comparator
+                        </div>
+                        <div class="component-desc">
+                            Validate and compare upstream system inputs
+                        </div>
+                        <ul class="component-features">
+                            <li>Data freshness checks</li>
+                            <li>Completeness validation</li>
+                            <li>Lineage tracking</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">📈</div>
+                            Metrics Service
+                        </div>
+                        <div class="component-desc">
+                            Calculate anomaly scores and thresholds
+                        </div>
+                        <ul class="component-features">
+                            <li>Statistical analysis</li>
+                            <li>Threshold management</li>
+                            <li>Anomaly scoring</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- Data Layer -->
+            <div class="layer data-layer">
+                <div class="layer-title">
+                    <div class="layer-icon">💿</div>
+                    Data & Integration Layer
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">📚</div>
+                            Log Storage
+                        </div>
+                        <div class="component-desc">
+                            Elasticsearch/OpenSearch for structured log storage and fast search
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">🗃️</div>
+                            Primary Database
+                        </div>
+                        <div class="component-desc">
+                            PostgreSQL for Risk & P&L system data with pgvector support
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">📊</div>
+                            Time-Series DB
+                        </div>
+                        <div class="component-desc">
+                            TimescaleDB/InfluxDB for metrics and trend analysis
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">🧠</div>
+                            Vector Database
+                        </div>
+                        <div class="component-desc">
+                            Pinecone/Weaviate for semantic search of historical incidents
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">⚡</div>
+                            Cache Layer
+                        </div>
+                        <div class="component-desc">
+                            Redis for caching, session management, and rate limiting
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <div class="component-icon">📨</div>
+                            Message Queue
+                        </div>
+                        <div class="component-desc">
+                            RabbitMQ/Kafka for async processing and event streaming
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"></div>
+                User Interface
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);"></div>
+                Orchestration
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ec4899, #db2777);"></div>
+                Agents
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></div>
+                Tools/APIs
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #10b981, #059669);"></div>
+                Data Layer
+            </div>
+        </div>
+    </div>
+</body>
+</html>

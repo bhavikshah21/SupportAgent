@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool & API Layer Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 32px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            background: #f7fafc;
+            color: #4a5568;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .tab-button:hover {
+            background: #edf2f7;
+            transform: translateY(-2px);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border-color: #f59e0b;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .service-card {
+            background: linear-gradient(135deg, #fff5eb 0%, #ffffff 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 6px solid #f59e0b;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1);
+        }
+        
+        .service-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .service-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #b45309;
+        }
+        
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
+        
+        .service-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .tag.tech {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .tag.priority {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .tag.status {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .section {
+            margin-top: 25px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .endpoint {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #f59e0b;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .endpoint-method {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .method-get { background: #dbeafe; color: #1e40af; }
+        .method-post { background: #d1fae5; color: #065f46; }
+        .method-put { background: #fef3c7; color: #92400e; }
+        .method-delete { background: #fee2e2; color: #991b1b; }
+        
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .endpoint-desc {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.5;
+        }
+        
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        
+        .feature-item {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #4a5568;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-item::before {
+            content: "✓";
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        
+        .tech-stack {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .tech-item {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .tech-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .tech-icon {
+            font-size: 24px;
+        }
+        
+        .tech-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+        
+        .tasks-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .task-phase {
+            margin-bottom: 25px;
+        }
+        
+        .phase-header {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
+            background: #f7fafc;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #cbd5e0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .task-item:hover {
+            border-left-color: #f59e0b;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .task-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 15px;
+        }
+        
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .task-duration {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .task-priority {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .priority-high { background: #fee2e2; color: #991b1b; }
+        .priority-medium { background: #fef3c7; color: #92400e; }
+        .priority-low { background: #dbeafe; color: #1e40af; }
+        
+        .task-details {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        .architecture-diagram {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .diagram-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 25px;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .flow-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .flow-box {
+            background: linear-gradient(135deg, #fff5eb, #ffffff);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15);
+        }
+        
+        .flow-box-title {
+            font-weight: 700;
+            color: #b45309;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .flow-box-desc {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .flow-arrow {
+            font-size: 32px;
+            color: #f59e0b;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .endpoints {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ Tool & API Layer - Detailed Design</h1>
+        <p class="subtitle">Microservices Architecture for Third-Line Support Automation</p>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('overview')">📊 Overview</button>
+            <button class="tab-button" onclick="switchTab('log-analyzer')">📝 Log Analyzer</button>
+            <button class="tab-button" onclick="switchTab('db-comparator')">🗄️ DB Comparator</button>
+            <button class="tab-button" onclick="switchTab('input-comparator')">🔄 Input Comparator</button>
+            <button class="tab-button" onclick="switchTab('metrics-service')">📈 Metrics Service</button>
+            <button class="tab-button" onclick="switchTab('tasks')">✅ Task List</button>
+        </div>
+        
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="architecture-diagram">
+                <div class="diagram-title">Tool & API Layer Architecture</div>
+                <div class="flow-diagram">
+                    <div class="flow-row">
+                        <div class="flow-box">
+                            <div class="flow-box-title">🤖 Agent Layer</div>
+                            <div class="flow-box-desc">Detection, Diagnosis & Resolution Agents</div>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-row">
+                        <div class="flow-box">
+                            <div class="flow-box-title">🌐 API Gateway</div>
+                            <div class="flow-box-desc">Rate Limiting, Auth, Load Balancing</div>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-row">
+                        <div class="flow-box">
+                            <div class="flow-box-title">📝 Log Analyzer</div>
+                            <div class="flow-box-desc">Port 8001</div>
+                        </div>
+                        <div class="flow-box">
+                            <div class="flow-box-title">🗄️ DB Comparator</div>
+                            <div class="flow-box-desc">Port 8002</div>
+                        </div>
+                        <div class="flow-box">
+                            <div class="flow-box-title">🔄 Input Comparator</div>
+                            <div class="flow-box-desc">Port 8003</div>
+                        </div>
+                        <div class="flow-box">
+                            <div class="flow-box-title">📈 Metrics Service</div>
+                            <div class="flow-box-desc">Port 8004</div>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-row">
+                        <div class="flow-box">
+                            <div class="flow-box-title">💿 Data Layer</div>
+                            <div class="flow-box-desc">Elasticsearch, PostgreSQL, Redis, TimescaleDB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section" style="margin-top: 30px;">
+                <div class="section-title">
+                    <div class="section-icon">🎯</div>
+                    Design Principles
+                </div>
+                <div class="features-list">
+                    <div class="feature-item">Microservices architecture for independent scaling</div>
+                    <div class="feature-item">RESTful APIs with OpenAPI/Swagger documentation</div>
+                    <div class="feature-item">Async processing for long-running operations</div>
+                    <div class="feature-item">Comprehensive error handling and retries</div>
+                    <div class="feature-item">Request/response caching with Redis</div>
+                    <div class="feature-item">Structured logging for observability</div>
+                    <div class="feature-item">API versioning for backward compatibility</div>
+                    <div class="feature-item">Rate limiting per client/endpoint</div>
+                    <div class="feature-item">Health checks and readiness probes</div>
+                    <div class="feature-item">Circuit breaker pattern for resilience</div>
+                    <div class="feature-item">Authentication via JWT tokens</div>
+                    <div class="feature-item">Correlation IDs for request tracing</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <div class="section-icon">🔧</div>
+                    Common Tech Stack
+                </div>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <div class="tech-icon">🐍</div>
+                        <div class="tech-name">Python 3.11+</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">⚡</div>
+                        <div class="tech-name">FastAPI</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🔄</div>
+                        <div class="tech-name">Pydantic</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🐳</div>
+                        <div class="tech-name">Docker</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">☸️</div>
+                        <div class="tech-name">Kubernetes</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">📊</div>
+                        <div class="tech-name">Prometheus</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">📈</div>
+                        <div class="tech-name">Grafana</div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🔍</div>
+                        <div class="tech-name">OpenTelemetry</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log Analyzer Tab -->
+        <div id="log-analyzer" class="tab-content">
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-title">
+                        <div class="service-icon">📝</div>
+                        Log Analyzer Service
+                    </div>
+                    <div class="service-tags">
+                        <span class="tag tech">Python + FastAPI</span>
+                        <span class="tag tech">Elasticsearch</span>
+                        <span class="tag priority">High Priority</span>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🎯</div>
+                        Purpose & Scope
+                    </div>
+                    <p style="color: #4a5568; line-height: 1.8; margin-top: 10px;">
+                        Analyzes system logs from Risk Management and P&L systems to detect errors, anomalies, and patterns. 
+                        Performs day-over-day comparisons to identify deviations in log volume, error rates, and processing times.
+                        Supports both structured (JSON) and unstructured (text) log formats.
+                    </p>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🔌</div>
+                        API Endpoints
+                    </div>
+                    <div class="endpoints">
+                        <div class="endpoint">
+                            <span class="endpoint-method method-post">POST</span>
+                            <div class="endpoint-path">/api/v1/logs/compare</div>
+                            <div class="endpoint-desc">Compare logs between two dates. Returns differences in error counts, patterns, and processing times.</div>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method method-post">POST</span>
+                            <div class="endpoint-path">/api/v1/logs/search</div>
+                            <div class="endpoint-desc">Full-text search across logs with filters for date range, severity, component, and keywords.</div>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method method-post">POST</span>
+                            <div class="endpoint-path">/api/v1/logs/parse-errors</div>
+                            <div class="endpoint-desc">Extract and categorize errors with stack traces and context from log files.</div>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method method-get">GET</span>
+                            <div class="endpoint-path">/api/v1/logs/patterns</div>
+                            <div class="endpoint-desc">Identify recurring patterns and anomalies using ML-based clustering.</div>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method method-get">GET</span>
+                            <div class="endpoint-path">/api/v1/logs/metrics</div>
+                            <div class="endpoint-desc">Get aggregated metrics: total logs, error rate, warning rate, processing time percentiles.</div>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method method-post">POST</span>
+                            <div class="endpoint-path">/api/v1/logs/analyze-frequency</div>
+                            <div class="endpoint-desc">Analyze log event frequency to detect spikes or drops in activity.</div>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method method-get">GET</span>
+                            <div class="endpoint-path">/api/v1/logs/timeline</div>
+                            <div class="endpoint-desc">Generate timeline visualization of log events and errors over time.</div>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method method-post">POST</span>
+                            <div class="endpoint-path">/api/v1/logs/correlation</div>
+                            <div class="endpoint-desc">Find correlations between different log sources and error cascades.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">✨</div>
+                        Key Features
+                    </div>
+                    <div class="features-list">
+                        <div class="feature-item">Multi-format log parsing (JSON, plain text, XML)</div>
+                        <div class="feature-item">Real-time log ingestion via Filebeat/Logstash</div>
+                        <div class="feature-item">Pattern recognition using regex and ML</div>
+                        <div class="feature-item">Anomaly detection with statistical analysis</div>
+                        <div class="feature-item">Stack trace extraction and grouping</div>
+                        <div class="feature-item">Day-over-day comparison with diff visualization</div>
+                        <div class="feature-item">Error categorization (network, database, business logic)</div>
+                        <div class="feature-item">Log volume trending and alerting</div>
+                        <div class="feature-item">Context extraction around errors (±10 lines)</div>
+                        <div class="feature-item">Deduplication of similar errors</div>
+                        <div class="feature-item">Response caching for repeated queries</div>
+                        <div class="feature-item">Async processing for large log files</div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🗄️</div>
+                        Data Models
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 10px; margin-top: 10px;">
+                        <pre style="font-family: 'Courier New', monospace; font-size: 13px; color: #2d3748; line-height: 1.6; overflow-x: auto;">
+<strong>LogEntry</strong>
+- timestamp: datetime
+- level: str (ERROR, WARN, INFO, DEBUG)
+- component: str (risk-engine, pnl-calculator, data-loader)
+- message: str
+- stack_trace: Optional[str]
+- context: Dict[str, Any]
+- request_id: Optional[str]
+- session_id: Optional[str]
+
+<strong>LogComparison</strong>
+- date1: date
+- date2: date
+- total_logs_diff: int
+- error_count_diff: int
+- new_errors: List[str]
+- resolved_errors: List[str]
+- frequency_changes: Dict[str, float]
+- processing_time_diff: Dict[str, float]
+
+<strong>ErrorPattern</strong>
+- pattern_id: str
+- error_type: str
+- occurrence_count: int
+- first_seen: datetime
+- last_seen: datetime
+- affected_components: List[str]
+- sample_messages: List[str]</pre>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🔧</div>
+                        Technology Stack
+                    </div>
+                    <div class="tech-stack">
+                        <div class="tech-item">
+                            <div class="tech-icon">🔍</div>
+                            <div class="tech-name">Elasticsearch 8.x</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">📊</div>
+                            <div class="tech-name">Pandas/Polars</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">🤖</div>
+                            <div class="tech-name">scikit-learn</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">⚡</div>
+                            <div class="tech-name">Celery (async)</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">🔄</div>
+                            <div class="tech-name">Logstash/Filebeat</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- DB Comparator Tab -->
+        <div id="db-comparator" class="tab-content">
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-title">
+                        <div class="service-icon">🗄️</div>
+                        Database Comparator Service
+                    </div>
+                    <div class="service-tags">
+                        <span class="tag tech">Python + FastAPI</span>
+                        <span class="tag tech">PostgreSQL</span>
+                        <span class="tag priority">High Priority</span>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🎯</div>
+                        Purpose & Scope
+                    </div>
+                    <p style="color: #4a5568; line-height: 1.8; margin-top: 10px;">
+                        Compares database states between different dates or runs to identify data anomalies, missing records, 
+                        unexpected changes in aggregates, and data quality issues. Validates schema consistency and performs 
+                        row-level reconciliation for critical tables in Risk and P&L systems.
+                    </p>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <div class="section-icon">🔌</div>
+                        API Endpoints
+                    </div>
+                    <div class="endpoints">
+                        <div class="endpoint">
+                            <span class="endpoint-method method-post">POST</span>
+                            <div class="endpoint-path">/api/v1/db/compare-tables</div>
+                            <div class="endpoint-desc">Compare table contents between two dates. Returns row count differences, new/missing records, and changed values.</div>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method method-post">POST</span>
+                            <div class="endpoint-path">/api/v1/db/validate-data
